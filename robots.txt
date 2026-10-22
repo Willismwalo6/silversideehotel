@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://silversideehotel.vercel.app/sitemap.xml
