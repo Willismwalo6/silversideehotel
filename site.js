@@ -28,12 +28,16 @@ D.addEventListener("click",function(e){var vb=e.target.closest("[data-view]");
  if(vb&&dlg){var c=vb.closest("[data-room]");sel=c.dataset;$("#dlg-t").textContent=sel.name;$("#dlg-d").textContent=sel.desc;$("#dlg-m").innerHTML="<span>Sleeps "+sel.sleeps+"</span><span>Free Wi-Fi</span><span>Rates on request</span>";$("#dlg-img").innerHTML='<img src="'+sel.full+'" alt="'+sel.alt+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">';$("#dlg-r").href="https://wa.me/"+NUM+"?text="+encodeURIComponent("Hello Silver Side Hotel, I would like to reserve the "+sel.name+". Please share availability and rates.");dlg.showModal()}
  if(dlg&&(e.target==dlg||e.target.id=="dlg-x"))dlg.close()});
 /* lightbox */
-var lb=$("#lb"),set=[],li=0;
-function show(i){li=(i+set.length)%set.length;var im=set[li];$("#lb-i").src=im.dataset.full||im.src;$("#lb-i").alt=im.alt;$("#lb-c").textContent=(li+1)+" / "+set.length}
-D.addEventListener("click",function(e){var p=e.target.closest(".mosaic .ph,.tour .ph,#gal-food .ph");
- if(p&&lb&&p.querySelector("img")){var box=p.closest(".mosaic,.tour,#gal-food");set=$$("img",box).filter(function(i){return !i.closest(".hide")});li=set.indexOf(p.querySelector("img"));show(li);lb.showModal()}
- if(lb){if(e.target==lb||e.target.id=="lb-x")lb.close();if(e.target.id=="lb-n")show(li+1);if(e.target.id=="lb-p")show(li-1)}});
-if(lb)lb.addEventListener("keydown",function(e){if(e.key=="ArrowRight")show(li+1);if(e.key=="ArrowLeft")show(li-1)});
+var lb=$("#lb"),set=[],li=0,tx=0;
+function show(i){li=(i+set.length)%set.length;var im=set[li],t=$("#lb-i");t.removeAttribute("data-fb");t.src=im.dataset.full||im.currentSrc||im.src;t.alt=im.alt;$("#lb-c").textContent=set.length>1?(li+1)+" / "+set.length:"";$("#lb-p").hidden=$("#lb-n").hidden=set.length<2;if(set.length>1){var nx=set[(li+1)%set.length];new Image().src=nx.dataset.full||nx.src}}
+D.addEventListener("click",function(e){var im=e.target.closest(".ph img[data-full]");
+ if(im&&lb&&!im.closest("#dlg")){var box=im.closest(".mosaic,.tour,#gal-food");set=box?$$("img[data-full]",box).filter(function(x){return !x.closest(".hide")}):[im];li=set.indexOf(im);show(li);lb.showModal();return}
+ if(lb){if(e.target==lb||e.target.id=="lb-x"||e.target.id=="lb-i")lb.close();if(e.target.id=="lb-n")show(li+1);if(e.target.id=="lb-p")show(li-1)}});
+if(lb){lb.addEventListener("keydown",function(e){if(e.key=="ArrowRight")show(li+1);if(e.key=="ArrowLeft")show(li-1)});
+ lb.addEventListener("touchstart",function(e){tx=e.changedTouches[0].clientX},{passive:true});
+ lb.addEventListener("touchend",function(e){var d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50&&set.length>1)show(li+(d<0?1:-1))},{passive:true})}
+/* if a photo fails to load, try its other size */
+addEventListener("error",function(e){var t=e.target;if(t&&t.tagName=="IMG"&&!t.dataset.fb){var s=t.getAttribute("src")||"",o=s.indexOf("-1400.webp")>-1?s.replace("-1400.webp","-800.webp"):s.indexOf("-800.webp")>-1?s.replace("-800.webp","-1400.webp"):"";if(o){t.dataset.fb=1;t.removeAttribute("srcset");t.src=o}}},true);
 /* tour filter */
 var fil=$("#fil");if(fil)fil.onclick=function(e){var b=e.target.closest("button");if(!b)return;$$("#fil button").forEach(function(x){x.classList.toggle("on",x==b)});$$("#tour-grid .ph").forEach(function(p){p.classList.toggle("hide",b.textContent!="All"&&p.dataset.c!=b.textContent)})};
 /* cookie */
